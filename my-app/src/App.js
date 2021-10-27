@@ -2,30 +2,21 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
-	const [users, setUsers] = useState([]);
+	const [question, setQuestion] = useState([]);
+	console.log(question);
 
-	useEffect(() => {
-		fetch("https://reqres.in/api/users")
+	const fetchData = () => {
+		fetch("https://opentdb.com/api.php?amount=1")
 			.then((response) => response.json())
-			.then((resData) => setUsers(resData.data));
-	}, []);
+			.then((resData) => setQuestion(resData.results));
+	};
 
 	return (
 		<div className="App">
-			<table>
-				<tbody>
-					{users.map((user, index) => (
-						<tr key={index}>
-							<td>{user.first_name}</td>
-							<td>{user.last_name}</td>
-							<td>{user.email}</td>
-							<td>
-								<img src={user.avatar} alt={user.last_name} />
-							</td>
-						</tr>
-					))}
-				</tbody>
-			</table>
+			<p>{question[0].question}</p>
+			<button type="button" name="question" onClick={fetchData}>
+				New Question
+			</button>
 		</div>
 	);
 }
