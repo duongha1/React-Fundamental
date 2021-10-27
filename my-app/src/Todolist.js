@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Button from "@material-ui/core/Button";
 
 export default function Todolist() {
 	const [todo, setTodo] = useState({ description: "", date: "" });
@@ -31,7 +32,14 @@ export default function Todolist() {
 				value={todo.date}
 				onChange={inputChanged}
 			/>
-			<button onClick={addTodo}>Add</button>
+			<Button
+				style={{ margin: 10 }}
+				color="primary"
+				variant="outlined"
+				onClick={addTodo}
+			>
+				Add
+			</Button>
 			<div
 				style={{
 					display: "flex",
@@ -45,7 +53,7 @@ export default function Todolist() {
 							<tr key={index}>
 								<td>{item.description}</td>
 								<td>{item.date}</td>
-								<button onClick={() => deleteTodo(item)}>Delete</button>
+								<Button onClick={() => deleteTodo(item)}>Delete</Button>
 							</tr>
 						))}
 					</tbody>
