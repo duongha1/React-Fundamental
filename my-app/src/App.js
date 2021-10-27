@@ -6,7 +6,7 @@ import {
 	Button,
 	IconButton,
 } from "@material-ui/core";
-import { Delete } from "@material-ui/icons";
+import { Delete, Save } from "@material-ui/icons";
 
 export default function App() {
 	const [todo, setTodo] = useState({ description: "", date: "" });
@@ -59,6 +59,7 @@ export default function App() {
 					variant="outlined"
 					onClick={addTodo}
 				>
+					<Save style={{ marginRight: "10px" }} />
 					Add
 				</Button>
 			</div>
