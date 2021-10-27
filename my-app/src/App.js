@@ -1,28 +1,53 @@
-import React, { useState } from "react";
-import {
-	AppBar,
-	Toolbar,
-	Typography,
-	Button,
-	IconButton,
-} from "@material-ui/core";
-import { Delete, Save } from "@material-ui/icons";
+import React, { useState, useEffect } from "react";
+import { AppBar, Toolbar, Typography, IconButton } from "@material-ui/core";
+import { Delete } from "@material-ui/icons";
+import { AgGridColumn, AgGridReact } from "ag-grid-react";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-material.css";
+import AddBook from "./AddBook";
 
 export default function App() {
-	const [todo, setTodo] = useState({ description: "", date: "" });
-	const [todos, setTodos] = useState([]);
-	const inputChanged = (event) => {
-		setTodo({ ...todo, [event.target.name]: event.target.value });
+	const [bookList, setBookList] = useState([]);
+	useEffect(() => {
+		fetchItems();
+	}, []);
+	console.log(bookList);
+
+	const fetchItems = () => {
+		fetch("https://bookstore-e74ea-default-rtdb.firebaseio.com/.json")
+			.then((response) => response.json())
+			.then((resData) => {
+				addKeys(resData);
+			});
 	};
 
-	const addTodo = () => {
-		setTodos([...todos, todo]);
-		setTodo({ description: "", date: "" });
+	const addKeys = (data) => {
+		const keys = Object.keys(data.books);
+		const valueKeys = Object.values(data.books).map((item, index) =>
+			Object.defineProperty(item, "id", { value: keys[index] })
+		);
+		setBookList(valueKeys);
 	};
 
-	const deleteTodo = (itemToRemove) => {
-		const newTodos = todos.filter((item) => item !== itemToRemove);
-		setTodos(newTodos);
+	const addBook = (newBook) => {
+		fetch("https://bookstore-e74ea-default-rtdb.firebaseio.com/books/.json", {
+			method: "POST",
+			body: JSON.stringify(newBook),
+		})
+			.then((response) => fetchItems())
+			.catch((err) => console.error(err));
+	};
+
+	const deleteBook = (id) => {
+		console.log("id", id);
+		fetch(
+			`https://bookstore-e74ea-default-rtdb.firebaseio.com/books/${id}.json`,
+			{
+				method: "DELETE",
+			}
+		)
+			.then((response) => fetchItems())
+			.catch((err) => console.error(err));
 	};
 
 	return (
@@ -41,52 +66,33 @@ export default function App() {
 					justifyContent: "center",
 				}}
 			>
-				<input
-					placeholder="Description"
-					name="description"
-					value={todo.description}
-					onChange={inputChanged}
-				/>
-				<input
-					placeholder="Date"
-					name="date"
-					value={todo.date}
-					onChange={inputChanged}
-				/>
-				<Button
-					style={{ margin: 10 }}
-					color="primary"
-					variant="outlined"
-					onClick={addTodo}
-				>
-					<Save style={{ marginRight: "10px" }} />
-					Add
-				</Button>
+				<AddBook addBook={addBook} />
 			</div>
 			<div
-				style={{
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-				}}
+				className="ag-theme-material"
+				style={{ height: 400, width: 1000, margin: "auto" }}
 			>
-				<table>
-					<tbody>
-						{todos.map((item, index) => (
-							<tr key={index}>
-								<td>{item.description}</td>
-								<td>{item.date}</td>
-								<IconButton
-									size="small"
-									color="secondary"
-									onClick={() => deleteTodo(item)}
-								>
-									<Delete />
-								</IconButton>
-							</tr>
-						))}
-					</tbody>
-				</table>
+				<AgGridReact rowData={bookList}>
+					<AgGridColumn sortable={true} filter={true} field="title" />
+					<AgGridColumn sortable={true} filter={true} field="author" />
+					<AgGridColumn sortable={true} filter={true} field="year" />
+					<AgGridColumn sortable={true} filter={true} field="isbn" />
+					<AgGridColumn sortable={true} filter={true} field="price" />
+					<AgGridColumn
+						headerName=""
+						field="id"
+						width={90}
+						cellRendererFramework={(params) => (
+							<IconButton
+								size="small"
+								color="secondary"
+								onClick={() => deleteBook(params.value)}
+							>
+								<Delete />
+							</IconButton>
+						)}
+					/>
+				</AgGridReact>
 			</div>
 		</div>
 	);
