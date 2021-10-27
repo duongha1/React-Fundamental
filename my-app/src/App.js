@@ -5,22 +5,25 @@ function App() {
 	const [users, setUsers] = useState([]);
 
 	useEffect(() => {
-		fetch("https://reqres.in/api/users")
+		fetch("https://api.github.com/search/repositories?q=react")
 			.then((response) => response.json())
-			.then((resData) => setUsers(resData.data));
+			.then((resData) => setUsers(resData.items));
 	}, []);
 
 	return (
 		<div className="App">
+			<h1>Repositories</h1>
 			<table>
 				<tbody>
+					<tr>
+						<th>Name</th>
+						<th>URL</th>
+					</tr>
 					{users.map((user, index) => (
 						<tr key={index}>
-							<td>{user.first_name}</td>
-							<td>{user.last_name}</td>
-							<td>{user.email}</td>
+							<td>{user.full_name}</td>
 							<td>
-								<img src={user.avatar} alt={user.last_name} />
+								<a href={user.html_url}>{user.html_url}</a>
 							</td>
 						</tr>
 					))}
